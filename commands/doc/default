@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+#
+#/ command: digirest:doc: ""Digipost REST Documentation""
+#
+#/ usage: rerun digirest:doc [ --url|-u <https://api.digipost.no>] 
+#
+#/ variables: URL
+
+# Read module function library.
+. $RERUN_MODULE_DIR/lib/functions.sh || { 
+  echo >&2 "Failed loading function library" ; exit 1 ; 
+}
+
+# Parse the command options.
+[ -r $RERUN_MODULE_DIR/commands/doc/options.sh ] && {
+  . $RERUN_MODULE_DIR/commands/doc/options.sh || exit 2 ;
+}
+
+# Exit immediately upon non-zero exit for simple commands. 
+# See [set](http://ss64.com/bash/set.html)
+# Pipelines return with exit code of left most command failure.
+# See [pipelines](http://www.gnu.org/software/bash/manual/bash.html#Pipelines)
+set -e -o pipefail
+
+
+# ------------------------------
+# Your implementation goes here.
+# ------------------------------
+
+lynx -accept_all_cookies ${URL}
+
+exit $?
+
+# Done

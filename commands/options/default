@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+#/ command: digirest:options: ""Get resources and operations available for the API""
+#
+#/ usage: rerun digirest:options  --cert|-c <>  --url|-u <https://api.digipost.no>  --userid|-u <> 
+#
+#/ variables: CERT URL USERID
+
+# Read module function library.
+. $RERUN_MODULE_DIR/lib/functions.sh || { 
+  echo >&2 "Failed loading function library" ; exit 1 ; 
+}
+
+# Parse the command options.
+[ -r $RERUN_MODULE_DIR/commands/options/options.sh ] && {
+  . $RERUN_MODULE_DIR/commands/options/options.sh || exit 2 ;
+}
+
+# Exit immediately upon non-zero exit for simple commands. 
+# See [set](http://ss64.com/bash/set.html)
+# Pipelines return with exit code of left most command failure.
+# See [pipelines](http://www.gnu.org/software/bash/manual/bash.html#Pipelines)
+set -e -o pipefail
+
+
+# ------------------------------
+# Your implementation goes here.
+# ------------------------------
+
+date=$( date "+date: %a, %d %b %Y %H:%M:%S %Z" )
+userId="x-digipost-userid: $USERID"
+contentmd5="content-md5: $( echo "" | openssl dgst -md5 | awk '{print $2}' | openssl base64 )"
+
+headers+="GET\n"
+headers+="/\n"
+headers+="${date}\n"
+headers+="${userId}\n"
+headers+="${contentmd5}\n"
+
+signature="x-digipost-signature: $( echo -e "${headers}" | openssl dgst -sha256 | awk '{print $2}' | openssl rsautl -sign -inkey ${CERT} -keyform PKCS12 | base64 )"
+headers+="${signature}\n"
+
+
+echo -e $headers
+
+curl -v -H "accept: application/vnd.digipost-v1+xml" -H "${date}" -H "${userId}" -H "${contentmd5}" -H "${signature}" -X GET ${URL}
+
+
+exit $?
+
+# Done
