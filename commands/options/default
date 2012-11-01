@@ -40,11 +40,9 @@ headers+="${contentmd5}\n"
 signature="x-digipost-signature: $( echo -e "${headers}" | openssl dgst -sha256 | awk '{print $2}' | openssl rsautl -sign -inkey ${CERT} -keyform PKCS12 | base64 )"
 headers+="${signature}\n"
 
-
-echo -e $headers
+_info "Calling ${URL} with headers: \n${headers}"
 
 curl -v -H "accept: application/vnd.digipost-v1+xml" -H "${date}" -H "${userId}" -H "${contentmd5}" -H "${signature}" -X GET ${URL}
-
 
 exit $?
 
